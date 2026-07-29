@@ -1,0 +1,25 @@
+# This repo is PUBLIC. Nothing sensitive, and no application source, belongs here.
+
+# Internal working context for Claude Code sessions. Stays on disk so future
+# sessions load it; never published. It records strategy, known risks that were
+# knowingly accepted, and past defects — all of which are discoverable evidence
+# if VoidFlow is ever in a dispute, and none of which a user needs.
+CLAUDE.md
+
+# Build artifacts — releases are attached to GitHub Releases, never committed
+*.app/
+*.dmg
+*.zip
+dist/
+
+# Secrets — notarization credentials, Stripe keys, signing material
+.env
+.env.*
+!.env.example
+secrets/
+*.p12
+*.cer
+*.provisionprofile
+
+# macOS
+.DS_Store

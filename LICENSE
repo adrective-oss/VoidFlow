@@ -1,0 +1,40 @@
+Copyright © 2026 Adrective. All rights reserved.
+
+PROPRIETARY — ALL RIGHTS RESERVED
+
+VoidFlow is proprietary software. This repository is public so that people can
+read the documentation, obtain the installer, and download releases. Being
+public does NOT make it open source, and no open-source licence is granted here
+by implication, by GitHub's interface, or by the absence of any other notice.
+
+WHAT THIS FILE COVERS
+
+The contents of this repository — the installer script, documentation, README,
+and other materials — are the copyrighted work of Adrective. You may read them,
+and you may run the installer to install VoidFlow. You may not redistribute,
+republish, or create derivative works from them without written permission.
+
+WHAT GOVERNS THE APPLICATION
+
+Your use of the VoidFlow application itself is governed by the End User Licence
+Agreement in EULA.md, and by the Privacy Policy in PRIVACY.md. The application's
+source code is not in this repository and is not publicly licensed.
+
+THIRD-PARTY COMPONENTS
+
+VoidFlow incorporates third-party software and machine-learning models under
+their own licences, which are unaffected by the terms above and which continue
+to govern those components. They are listed with their required attributions in
+NOTICE.md, with full licence texts in LICENSES/. Nothing in this file limits any
+right granted to you by those licences in respect of those components.
+
+In particular, the speech-recognition model is Parakeet TDT 0.6B v2, created by
+NVIDIA Corporation and licensed under CC BY 4.0
+(https://creativecommons.org/licenses/by/4.0/).
+
+NO WARRANTY
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. SEE SECTIONS 9 AND 10 OF EULA.md.
+
+Adrective · legal@adrective.com · https://adrective.com
