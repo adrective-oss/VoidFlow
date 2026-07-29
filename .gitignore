@@ -6,6 +6,11 @@
 # if VoidFlow is ever in a dispute, and none of which a user needs.
 CLAUDE.md
 
+# Website source material. Working document for building the site, not part of
+# the distribution repo — it carries positioning notes and an explicit list of
+# claims that must NOT ship.
+CONTEXT.md
+
 # Build artifacts — releases are attached to GitHub Releases, never committed
 *.app/
 *.dmg
