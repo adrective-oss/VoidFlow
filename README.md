@@ -56,8 +56,9 @@ hand you the method for.</sub>
 
 Don't trust us. Point [Little Snitch](https://obdev.at/products/littlesnitch)
 or [LuLu](https://objective-see.org/products/lulu.html) at VoidFlow and watch.
-After the one-time model download on first launch, it makes no network
-connections at all.
+The only request it ever makes is the one-time model download on first launch —
+which it asks you for before making, and which you can decline and still
+dictate. After that, nothing at all.
 
 That's a claim a cloud app cannot make, and it takes you thirty seconds to
 check.

@@ -49,13 +49,25 @@ delete them at any time. Deleting the folder resets VoidFlow completely.
 which application and window you said it into. It is the most sensitive file
 VoidFlow creates. It never leaves your Mac, but it is on your Mac.
 
+So you can get rid of it. Delete a single entry or clear the file entirely from
+the History tab, or set it to keep only the last 7, 30 or 90 days. Clearing
+also removes any saved audio and any quarantined copy of the file — a "delete
+everything" that left copies behind would not be worth much. If you would
+rather window titles were never written down in the first place, there is a
+switch for that in Advanced, and it covers saved window layouts too.
+
 ## 3. Network activity — the complete list
 
-**One-time model download.** On first launch, VoidFlow downloads its
-speech-recognition model (approximately 600 MB) from Hugging Face
-(`huggingface.co`). This is a plain file download. It contains nothing about
-you. Once the model has loaded, VoidFlow disables further network access for
-the remainder of the session.
+**One-time model download.** VoidFlow's speech-recognition model (approximately
+600 MB) is not bundled with the app. On first launch VoidFlow **asks** whether
+to download it from Hugging Face (`huggingface.co`), and contacts nothing until
+you answer. The transfer carries model weights in one direction and nothing
+about you. Once the model has loaded, VoidFlow disables further network access
+for the remainder of the session.
+
+If you decline, dictation still works, using Apple's built-in speech
+recognition — also entirely on-device, also no network. You can start the
+download later from the Providers tab.
 
 **Licence validation (not yet active).** When a paid subscription is
 introduced, VoidFlow will contact our payment provider to check your
