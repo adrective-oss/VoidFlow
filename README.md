@@ -6,6 +6,9 @@
 
 Nothing leaves your Mac. Ever.
 
+**Currently in beta.** Installed with a terminal command rather than a browser
+download — [here's why](#beta-notes), and it's deliberate.
+
 </div>
 
 ---
@@ -82,12 +85,22 @@ pipe into a shell.
 
 ## Beta notes
 
+VoidFlow is in beta and works fully — these are the rough edges, stated up
+front rather than discovered.
+
 - **You'll re-grant Accessibility after each update.** Beta builds aren't
   signed with an Apple Developer ID yet, so macOS treats each update as a new
-  app. This goes away at 1.0.
+  app. This is the one that will annoy you, and it goes away at 1.0 — with one
+  last re-grant when the real signature lands.
 - **The install is a terminal command on purpose.** Files downloaded via
   `curl` aren't quarantined by Gatekeeper, which is what lets the beta ship
-  before code signing is in place.
+  before code signing is in place. The flip side: don't download the `.zip`
+  from the Releases page in a browser. That *does* quarantine it, and macOS
+  will refuse to open it. Use the command above.
+- **The checksum proves the download arrived intact, not who built it.** Both
+  files come from the same release, so it catches a corrupted or truncated
+  transfer — not a compromised one. Only a Developer ID signature carries
+  authorship, and that arrives at 1.0.
 
 ## Licence
 
