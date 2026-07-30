@@ -14,10 +14,10 @@ Nothing leaves your Mac. Ever.
 
 Because every one you've tried has made you give something up.
 
-Most dictation apps — Wispr Flow among them — send your audio to a server to
-transcribe it. That is a reasonable engineering choice, and it means your
-meetings, your half-formed ideas, and anything you say by accident are
-processed on someone else's machine under someone else's policy.
+Most dictation apps send your audio to a server to transcribe it. That is a
+reasonable engineering choice, and it means your meetings, your half-formed
+ideas, and anything you say by accident are processed on someone else's
+machine under someone else's policy.
 
 VoidFlow runs entirely on your own. Not "encrypted in transit." Not "processed
 and deleted." **It never leaves.**

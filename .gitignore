@@ -11,6 +11,13 @@ CLAUDE.md
 # claims that must NOT ship.
 CONTEXT.md
 
+# Agent working state. Subagents run with this repo as their working directory
+# even when the code they are reviewing lives in the private source repo, so
+# their notes land here — and those notes are review findings, defect lists and
+# source-tree paths. Same reasoning as CLAUDE.md above: useful on disk, not
+# something to hand a reader of the public repo.
+.claude/
+
 # Build artifacts — releases are attached to GitHub Releases, never committed
 *.app/
 *.dmg
