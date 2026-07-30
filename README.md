@@ -68,9 +68,8 @@ check.
 
 ## Install
 
-> **The beta isn't open yet.** Watch this repo — the first build lands in
-> [Releases](https://github.com/adrective-oss/VoidFlow/releases), and this
-> command starts working the moment it does. Free while the beta lasts.
+> **The beta is open.** Free while it lasts, and founding subscribers keep
+> their entitlement.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/adrective-oss/VoidFlow/main/install.sh | sh
