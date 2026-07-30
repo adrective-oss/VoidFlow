@@ -75,8 +75,10 @@ licensed CC BY 4.0.
 The Software asks macOS for:
 
 - **Microphone** — to hear your dictation. Required.
-- **Accessibility** — to type text into other applications. Required for
-  paste-anywhere; the Software still works without it via the clipboard.
+- **Accessibility** — to type text into other applications, and to list and
+  move your open windows for the Workspaces feature. Required for
+  paste-anywhere; the Software still works without it via the clipboard, and
+  Workspaces will say so rather than appearing empty.
 - **Speech Recognition** — for the on-device live preview.
 
 You may revoke any of these at any time in System Settings.
@@ -84,9 +86,11 @@ You may revoke any of these at any time in System Settings.
 ## 8. Network use
 
 The Software makes exactly one category of network request: a **one-time
-download of the speech-recognition model** on first launch (approximately
-600 MB, from Hugging Face). After it loads, the Software disables further
-network access for the remainder of the session.
+download of the speech-recognition model** (approximately 600 MB, from Hugging
+Face). The Software asks before making it on first launch, and you may decline
+— dictation then uses Apple's built-in on-device speech recognition, which
+also makes no network requests. After the model loads, the Software disables
+further network access for the remainder of the session.
 
 If a paid subscription is introduced, the Software will additionally contact
 our licensing provider to validate your entitlement. That request contains

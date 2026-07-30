@@ -37,6 +37,7 @@ All of it stays local, in `~/Library/Application Support/VoidFlow/`:
 | `history.json` | Your recent dictations — the raw transcript, the final text, and **the name and window title of the app you dictated into**. Capped at the 200 most recent. |
 | `dictionary.json` | Custom vocabulary you have taught it |
 | `addresses.json` | Email addresses you added, so they transcribe correctly |
+| `layouts.json` | Saved window arrangements — for each window, the app and **its title at the time you saved the layout**, plus where on screen it sat. Kept until you delete the layout. |
 | `settings.json` | Your preferences |
 | `latency.jsonl` | Timing measurements, for diagnosing slowness. No transcript text. |
 | `transitions.jsonl` | Internal state transitions, for diagnosing bugs. No transcript text. |
@@ -102,7 +103,7 @@ ambiguous words. It runs entirely on your Mac and is **off by default**.
 | Permission | Why |
 |---|---|
 | Microphone | To hear your dictation |
-| Accessibility | To type text into other apps. Also how VoidFlow reads the active window's title, which it uses to pick the right formatting |
+| Accessibility | To type text into other apps; to read the active window's title, which it uses to pick the right formatting; and, for Workspaces, to list your open windows and move them. Listing windows means VoidFlow can see the titles of windows you are *not* dictating into — it stores those only in a layout you explicitly save |
 | Speech Recognition | For the on-device live preview |
 
 Revoke any of them at any time in System Settings → Privacy & Security.
