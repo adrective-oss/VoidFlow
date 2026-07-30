@@ -127,7 +127,13 @@ cat <<'EOF'
   each update as a new app and you'll re-grant Accessibility after updating.
   That goes away at 1.0.
 
-  Uninstall completely:
+  Uninstall — the app, your history, and your settings:
     rm -rf "/Applications/VoidFlow.app" ~/Library/Application\ Support/VoidFlow
+
+  The speech model is about 450 MB on disk and is NOT removed by that. It
+  sits in a cache shared by every app built on FluidAudio, so it is listed
+  separately rather than folded into the line above — deleting it would take
+  the model out from under any other such app you have installed:
+    ~/Library/Application\ Support/FluidAudio/Models/parakeet-tdt-0.6b-v2-coreml
 
 EOF
