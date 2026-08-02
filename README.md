@@ -84,6 +84,12 @@ release, verifies its SHA-256 before unpacking anything, and moves the app
 into place. You should read it, and any script anyone asks you to pipe into a
 shell.
 
+It also has [tests](test/install_test.sh), which run on every change to it.
+They drive the real install against throwaway directories — including a real
+Ctrl-C delivered in the window where the old app has been moved aside and the
+new one hasn't landed yet, because getting that window wrong is the one bug in
+an installer that can leave you with nothing.
+
 ## Beta notes
 
 VoidFlow is in beta and works fully — these are the rough edges, stated up

@@ -1,0 +1,61 @@
+name: CI
+
+# install.sh is the only executable thing this repository ships, and every user
+# pipes it into a shell. It is also the only code here that can leave someone
+# with no application at all, which it did until a review found three defects in
+# its swap logic — two of them invisible to a careful hand-trace and only found
+# by executing it under an interrupt. Hence this: the suite runs the real
+# functions out of install.sh against throwaway directories, including a real
+# SIGINT delivered inside the window where no app is installed.
+#
+# Both runners earn their place. ubuntu-latest has dash as /bin/sh, which is the
+# strict POSIX check — bash-as-sh forgives things dash does not, and a user's
+# `| sh` is not guaranteed to be bash. macos-latest is the actual target, and
+# the only place shasum, ditto and the rest behave as they will in the field.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  installer:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax
+        run: |
+          sh -n install.sh
+          sh -n test/install_test.sh
+
+      # dash is /bin/sh on Ubuntu; install it on macOS so both runners make the
+      # same strict-POSIX assertion rather than one of them quietly skipping it.
+      - name: Syntax (dash)
+        run: |
+          if ! command -v dash >/dev/null 2>&1; then
+            if [ "$RUNNER_OS" = "macOS" ]; then brew install dash; else sudo apt-get install -y dash; fi
+          fi
+          dash -n install.sh
+          dash -n test/install_test.sh
+
+      - name: ShellCheck
+        run: |
+          if ! command -v shellcheck >/dev/null 2>&1; then
+            if [ "$RUNNER_OS" = "macOS" ]; then brew install shellcheck; else sudo apt-get install -y shellcheck; fi
+          fi
+          shellcheck -x -s sh install.sh test/install_test.sh
+
+      - name: Installer tests
+        run: sh test/install_test.sh
+
+      # Run the suite a second time under dash directly, so a bash-only
+      # construct creeping into either file fails here rather than on the
+      # machine of whoever's /bin/sh is not bash.
+      - name: Installer tests (dash)
+        run: dash test/install_test.sh
