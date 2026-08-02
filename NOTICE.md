@@ -40,6 +40,12 @@ the License.
 FluidAudio is used as an unmodified dependency; no changes were made to its
 source.
 
+FluidAudio's offline speaker-diarization clustering (`VBxClustering.swift`)
+is FluidInference's own re-implementation of the VBx algorithm published by
+BUT Speech@FIT (Brno University of Technology), also under the Apache
+License, Version 2.0 — not a separately vendored library, so the terms
+above already cover it.
+
 ### fastcluster
 
 Hierarchical clustering routines, vendored inside FluidAudio
@@ -75,12 +81,6 @@ redistribution:
 > CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 > ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 > POSSIBILITY OF SUCH DAMAGE.
-
-### VBx
-
-Speaker-diarization components, vendored inside FluidAudio.
-
-- Licence: **Apache License, Version 2.0** — see `LICENSES/Apache-2.0.txt`
 
 ---
 
@@ -136,7 +136,6 @@ for completeness only; if any of it ever ships, move it to section 1.
 | Component | Licence | Used by |
 |---|---|---|
 | argmax-oss-swift (WhisperKit) | MIT | `Bakeoff` accuracy-comparison target |
-| swift-transformers | Apache-2.0 | transitive, via argmax-oss-swift |
 | swift-argument-parser | Apache-2.0 | transitive, via argmax-oss-swift |
 
 ---

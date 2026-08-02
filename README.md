@@ -37,11 +37,11 @@ Idle wake-ups is the one nobody advertises, and it's the number that decides
 whether your battery survives the afternoon.
 
 <sub>Measured with Activity Monitor during ordinary daily use on an M-series Mac
-with 18 GB of RAM. Single machine, single sample. A reproducible benchmark
-harness — with competing apps measured under an identical scripted workload —
-ships alongside the beta, and the numbers here will be replaced with its
-output. We'd rather publish one honest column now than a comparison we can't
-hand you the method for.</sub>
+with 18 GB of RAM. Single machine, single sample — an indication, not a
+specification. There's no competitor column because we haven't measured one
+under a controlled workload, and a comparison we can't hand you the method for
+is exactly how a number like that ends up wrong. If we build a reproducible
+harness, these get replaced with its output.</sub>
 
 ## What it does
 
@@ -78,9 +78,11 @@ curl -fsSL https://raw.githubusercontent.com/adrective-oss/VoidFlow/main/install
 Requires macOS 14 or later on Apple Silicon. First launch downloads the
 speech-recognition model (~600 MB, one time).
 
-Prefer to read before you pipe? [`install.sh`](install.sh) is 100 lines and
-does nothing clever — you should read it, and any script anyone asks you to
-pipe into a shell.
+Prefer to read before you pipe? [`install.sh`](install.sh) is short, and most
+of it is comments and error messages — it checks your Mac, downloads the
+release, verifies its SHA-256 before unpacking anything, and moves the app
+into place. You should read it, and any script anyone asks you to pipe into a
+shell.
 
 ## Beta notes
 
