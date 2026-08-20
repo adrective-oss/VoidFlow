@@ -23,9 +23,16 @@ WORK=$(mktemp -d)
 # merely returns does not stop a POSIX shell. Without it, a Ctrl-C here wipes
 # WORK out from under the still-running cases below — which is how the first
 # draft of this file managed to reproduce the bug it was written to catch.
-trap 'rm -rf "$WORK"' EXIT
-trap 'rm -rf "$WORK"; exit 130' INT
-trap 'rm -rf "$WORK"; exit 143' TERM
+# `chmod u+w` first: the read-only-destination case drops the write bit on a
+# sandbox directory, and a mode-555 directory cannot have its entries unlinked
+# even by their owner. An exit landing inside that window — a Ctrl-C, or any
+# future case added between the chmod and its restore — otherwise leaks the
+# scratch tree and sprays `rm` errors on the way out.
+scrub() { chmod -R u+w "$WORK" 2>/dev/null || true; rm -rf "$WORK"; }
+trap 'scrub' EXIT
+trap 'scrub; exit 130' INT
+trap 'scrub; exit 143' TERM
+trap 'scrub; exit 129' HUP
 
 passed=0
 failed=0
@@ -132,8 +139,10 @@ check "upgrade leaves no backup behind" "$(backup_state "$root")" gone
 #
 # The child reports reaching the danger window by touching a sentinel, so the
 # signal lands inside it rather than on a guessed delay.
-interrupt_mid_swap() { # root -> echoes the interrupted installer's exit status
+interrupt_mid_swap() { # root [signal] [shell] -> echoes the interrupted installer's exit status
   root=$1
+  signal=${2:-INT}
+  child_sh=${3:-sh}
   rm -f "$root/pid"
 
   # The installer runs in the FOREGROUND and a backgrounded watcher signals it.
@@ -150,23 +159,48 @@ interrupt_mid_swap() { # root -> echoes the interrupted installer's exit status
       sleep 0.1
       waited=$((waited + 1))
     done
-    [ -f "$root/pid" ] && kill -INT "$(cat "$root/pid")" 2>/dev/null
+    [ -f "$root/pid" ] && kill -"$signal" "$(cat "$root/pid")" 2>/dev/null
   ) &
   watcher=$!
 
-  sh -c '
+  # Drives the real `install_bundle`, and that is the whole point of the case.
+  #
+  # An earlier version hand-rolled the swap here — it set `staged` itself and
+  # did the `mv` — which meant `install_bundle`'s *choice* of where to stage the
+  # backup was never executed. That choice is the fix this test exists to pin:
+  # staging into "$tmp" put the user's only copy inside the directory the
+  # cleanup trap deletes. Mutation-checked at the time it was rewritten:
+  # restoring `staged="$tmp/.$APP.previous"` left this case green, because the
+  # test never asked install.sh where the backup should go.
+  #
+  # So instead, shadow `mv` and let the real function run. `command mv` reaches
+  # the binary; the pause fires only on the staging move — the one that leaves
+  # no app installed — so the interrupt lands inside the window install.sh
+  # itself opens rather than one the test invented.
+  # The body is single-quoted on purpose: it is a script for the child shell,
+  # and must reach it unexpanded. shellcheck special-cases a literal `sh -c`
+  # and knows this; it cannot tell that "$child_sh" is also a shell.
+  # shellcheck disable=SC2016
+  "$child_sh" -c '
     set -u
     VOIDFLOW_TEST_LIB=1 . "$1"
-    tmp="$2/tmp"; dest="$2/dest"; staged=""
+    root="$2"; APP="$3"
+    tmp="$root/tmp"; dest="$root/dest"; staged=""
     install_traps
-    staged="$dest/.$3.previous"
-    mv "$dest/$3" "$staged"
-    # No app is installed as of this line. Publish the PID to be signalled —
-    # atomically, so the watcher cannot read a half-written file — then stay
-    # alive long enough to be signalled inside the window.
-    echo $$ > "$2/pid.partial" && mv "$2/pid.partial" "$2/pid"
-    sleep 2
-  ' sh "$INSTALLER" "$root" "$APP_NAME" >/dev/null 2>&1
+
+    mv() {
+      command mv "$@" || return $?
+      if [ "$2" = "$dest/.$APP.previous" ]; then
+        # No app is installed as of this line. Publish the PID to be signalled
+        # — atomically, so the watcher cannot read a half-written file — then
+        # stay alive long enough to be signalled inside the window.
+        echo $$ > "$root/pid.partial" && command mv "$root/pid.partial" "$root/pid"
+        sleep 2
+      fi
+    }
+
+    install_bundle
+  ' "$child_sh" "$INSTALLER" "$root" "$APP_NAME" >/dev/null 2>&1
   status=$?
 
   wait "$watcher" 2>/dev/null
@@ -178,6 +212,52 @@ status=$(interrupt_mid_swap "$root")
 check "Ctrl-C mid-swap leaves the previous app installed" "$(installed_marker "$root")" OLD
 check "Ctrl-C mid-swap removes the scratch directory" "$([ -d "$root/tmp" ] && echo present || echo gone)" gone
 check "an interrupt actually aborts rather than continuing" "$status" 130
+
+# Same window, closed terminal instead of Ctrl-C. `curl … | sh` dies on HUP.
+#
+# Deliberately run under **dash**, and that is not incidental: bash — which is
+# what /bin/sh is on macOS — runs the EXIT trap even when the shell is killed
+# by a signal it has no handler for, so it silently repairs a missing HUP trap
+# and the case cannot fail. dash does not, which is the POSIX-minimal
+# behaviour and the only place this assertion means anything. Verified both
+# ways before this was written; the first draft ran under sh and stayed green
+# with the trap deleted.
+#
+# The exit status is 129 with or without the trap (128 + SIGHUP), so it is not
+# asserted here — it would be a check that cannot fail.
+if command -v dash >/dev/null 2>&1; then
+  root=$(new_sandbox hangup); with_existing_install "$root"
+  interrupt_mid_swap "$root" HUP dash >/dev/null
+  check "a closed terminal mid-swap leaves the previous app installed" "$(installed_marker "$root")" OLD
+else
+  printf '  \033[33mskip\033[0m dash not installed — the hangup case needs a shell that does not run EXIT traps on signal death\n'
+fi
+
+# A move that fails *after* creating the destination — copy-then-unlink across
+# volumes, out of space partway — leaves a partial bundle at "$dest/$APP".
+# Restoring the backup on top of that used to move it *inside* the wreckage and
+# return 0, so the user was told "nothing has changed" while holding a corrupt
+# app with their only good copy buried in it.
+root=$(new_sandbox partial_dest); with_existing_install "$root"
+sh -c '
+  set -u
+  VOIDFLOW_TEST_LIB=1 . "$1"
+  root="$2"; APP="$3"
+  tmp="$root/tmp"; dest="$root/dest"; staged=""
+
+  mv() {
+    if [ "$1" = "$tmp/unpacked/$APP" ]; then
+      mkdir -p "$2/Contents"   # the half-written bundle the real failure leaves
+      return 1
+    fi
+    command mv "$@"
+  }
+
+  install_bundle
+' sh "$INSTALLER" "$root" "$APP_NAME" >/dev/null 2>&1
+check "a half-written destination does not swallow the backup" "$(installed_marker "$root")" OLD
+check "no backup is left nested inside the restored app" \
+  "$([ -e "$root/dest/$APP_NAME/.$APP_NAME.previous" ] && echo nested || echo clean)" clean
 
 # A failed install must put the old app back, not leave the user empty-handed.
 root=$(new_sandbox install_fails); with_existing_install "$root"

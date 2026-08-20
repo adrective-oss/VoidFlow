@@ -121,10 +121,17 @@ cleanup() {
 # install rather than aborting it. Re-entering cleanup through the EXIT trap
 # afterwards is harmless: once restored, "$dest/$APP" exists so the guard above
 # declines, and `rm -rf` on an already-removed directory is a no-op.
+# HUP is in here for the `curl … | sh` case specifically: closing the terminal
+# mid-install sends it, and without a handler the shell dies on the default
+# action inside the window where the old app is staged aside and the new one
+# has not landed — leaving no application installed. The leftover-recovery
+# branch above repairs that on the next run, but "run it again" is not a thing
+# the user knows to do.
 install_traps() {
   trap 'cleanup' EXIT
   trap 'cleanup; exit 130' INT
   trap 'cleanup; exit 143' TERM
+  trap 'cleanup; exit 129' HUP
 }
 
 verify_checksum() {
@@ -216,6 +223,23 @@ install_bundle() {
   fi
 
   if ! mv "$tmp/unpacked/$APP" "$dest/$APP"; then
+    # Clear any debris the failed move left behind before restoring. Without
+    # this, `mv "$staged" "$dest/$APP"` moves the backup *inside* the partial
+    # bundle instead of replacing it, returns 0, and the user is told nothing
+    # has changed while holding a corrupt app with their only good copy buried
+    # in it. Reachable whenever "$tmp" and "$dest" are on different volumes —
+    # a home directory on a network or external disk — because the move is
+    # then copy-then-unlink and can fail after creating the destination.
+    #
+    # `cleanup` has always guarded this with `[ ! -d "$dest/$APP" ]`; this path
+    # is the one that did not.
+    #   `:?` on both halves, because this is the one unconditionally
+    #   destructive command in the script: an empty "$dest" or "$APP" would
+    #   turn it into `rm -rf /`. `set -u` does not help — both are set, and
+    #   the danger is one of them being set to the empty string.
+    if [ -d "$staged" ]; then
+      rm -rf "${dest:?}/${APP:?}"
+    fi
     if [ -d "$staged" ] && mv "$staged" "$dest/$APP"; then
       die "Could not install the new version to $dest. Your previous install
     has been restored — nothing has changed."
