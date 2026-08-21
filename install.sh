@@ -262,7 +262,7 @@ install_bundle() {
 # -------------------------------------------------------------------- finish
 
 print_next_steps() {
-  cat <<'EOF'
+  cat <<EOF
 
   Open it from Spotlight or your Applications folder.
 
@@ -280,7 +280,7 @@ print_next_steps() {
   that no longer exists.
 
   Uninstall — the app, your history, and your settings:
-    rm -rf "/Applications/VoidFlow.app" ~/Library/Application\ Support/VoidFlow
+    rm -rf "$dest/$APP" ~/Library/Application\ Support/VoidFlow
 
   The ~600 MB above is the download. Once FluidAudio finishes caching it,
   the model itself is about 450 MB on disk, and that cache is NOT removed

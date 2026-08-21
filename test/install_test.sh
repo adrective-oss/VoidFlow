@@ -106,7 +106,7 @@ VOIDFLOW_TEST_LIB=1 . "$INSTALLER"
 # which looked exactly like the runner being signalled and cost a while to
 # tell apart. Everything below checks statuses explicitly instead.
 set +e
-for fn in install_bundle cleanup install_traps check_http_status parse_release_assets verify_checksum; do
+for fn in install_bundle cleanup install_traps check_http_status parse_release_assets verify_checksum print_next_steps; do
   if command -v "$fn" >/dev/null 2>&1; then
     pass "sourcing defines $fn"
   else
@@ -354,6 +354,20 @@ parse_release_assets "$both" >/dev/null 2>&1
 check "the zip URL is parsed" "$zip_url" "https://example.invalid/VoidFlow.zip"
 check "the checksum URL is parsed" "$sum_url" "https://example.invalid/VoidFlow.zip.sha256"
 check "the tag is parsed" "$tag" "v9.9.9"
+
+# The installer falls back to ~/Applications when /Applications is not
+# writable. The old footer always printed an /Applications uninstall command,
+# which left that fallback copy behind while claiming the app was removed.
+fallback_dest="$WORK/User Applications"
+fallback_steps=$(dest="$fallback_dest"; print_next_steps)
+fallback_uninstall="rm -rf \"$fallback_dest/$APP\" ~/Library/Application\\ Support/VoidFlow"
+check "fallback install prints its actual uninstall path" \
+  "$(printf '%s' "$fallback_steps" | grep -F -c "$fallback_uninstall")" 1
+
+system_steps=$(dest="/Applications"; print_next_steps)
+system_uninstall='rm -rf "/Applications/VoidFlow.app" ~/Library/Application\ Support/VoidFlow'
+check "system install still prints the standard uninstall path" \
+  "$(printf '%s' "$system_steps" | grep -F -c "$system_uninstall")" 1
 
 # ---------------------------------------------------------------------------
 
